@@ -60,24 +60,24 @@ def fetch_entertainment_news(limit=5):
 	return news_items
 
 
-def _cartoon_title_and_author(raw_title, date_text):
+def _cartoon_title_and_author(raw_title):
 	"""
-	Split `Title - Author` from cartoon-description; trailing part after the last
-	'-' is the author. If that part is empty, use date_text for author; if it is
-	non-empty, author is only that segment (do not put the page date in author).
+	Split `Title - Author` from cartoon-description; text after the last '-' is
+	the author. If that part is empty, author is None (never use the page date).
+	If there is no hyphen, the whole string is the title and author is None.
 	"""
 	if not raw_title:
-		return None, date_text
+		return None, None
 	s = raw_title.strip()
 	if "-" not in s:
-		return s, date_text
+		return s, None
 	head, tail = s.rsplit("-", 1)
 	head = head.strip()
 	tail = tail.strip()
 	title = head if head else s
 	if tail:
 		return title, tail
-	return title, date_text
+	return title, None
 
 
 def fetch_cartoon_of_the_day():
@@ -92,7 +92,6 @@ def fetch_cartoon_of_the_day():
 		image_url = None
 		author = None
 
-		date_text = None
 		if section.count():
 			title_locator = section.locator("div.cartoon-description p").first
 			raw_title = None
@@ -100,12 +99,7 @@ def fetch_cartoon_of_the_day():
 				t = title_locator.text_content()
 				raw_title = t.strip() if t else None
 
-			date_locator = section.locator("div.date p").first
-			if date_locator.count():
-				dt = date_locator.text_content()
-				date_text = dt.strip() if dt else None
-
-			title, author = _cartoon_title_and_author(raw_title, date_text)
+			title, author = _cartoon_title_and_author(raw_title)
 
 			image_locator = section.locator("div.cartoon-image img").first
 			if image_locator.count():
