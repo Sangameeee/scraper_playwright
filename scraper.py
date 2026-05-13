@@ -61,11 +61,7 @@ def fetch_entertainment_news(limit=5):
 
 
 def _cartoon_title_and_author(raw_title):
-	"""
-	Split `Title - Author` from cartoon-description; text after the last '-' is
-	the author. If that part is empty, author is None (never use the page date).
-	If there is no hyphen, the whole string is the title and author is None.
-	"""
+
 	if not raw_title:
 		return None, None
 	s = raw_title.strip()
