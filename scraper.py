@@ -60,6 +60,26 @@ def fetch_entertainment_news(limit=5):
 	return news_items
 
 
+def _cartoon_title_and_author(raw_title, date_text):
+	"""
+	Split `Title - Author` from cartoon-description; trailing part after the last
+	'-' is the author. If that part is empty, use date_text for author; if it is
+	non-empty, author is only that segment (do not put the page date in author).
+	"""
+	if not raw_title:
+		return None, date_text
+	s = raw_title.strip()
+	if "-" not in s:
+		return s, date_text
+	head, tail = s.rsplit("-", 1)
+	head = head.strip()
+	tail = tail.strip()
+	title = head if head else s
+	if tail:
+		return title, tail
+	return title, date_text
+
+
 def fetch_cartoon_of_the_day():
 	"""Scrape the primary cartoon block from the cartoon listing page."""
 	with sync_playwright() as p:
@@ -72,11 +92,20 @@ def fetch_cartoon_of_the_day():
 		image_url = None
 		author = None
 
+		date_text = None
 		if section.count():
 			title_locator = section.locator("div.cartoon-description p").first
+			raw_title = None
 			if title_locator.count():
-				text = title_locator.text_content()
-				title = text.strip() if text else None
+				t = title_locator.text_content()
+				raw_title = t.strip() if t else None
+
+			date_locator = section.locator("div.date p").first
+			if date_locator.count():
+				dt = date_locator.text_content()
+				date_text = dt.strip() if dt else None
+
+			title, author = _cartoon_title_and_author(raw_title, date_text)
 
 			image_locator = section.locator("div.cartoon-image img").first
 			if image_locator.count():
@@ -91,11 +120,6 @@ def fetch_cartoon_of_the_day():
 						src = srcset.split(",")[0].strip().split(" ")[0]
 				if src:
 					image_url = urljoin(BASE_URL, src)
-
-			author_locator = section.locator("div.date p").first
-			if author_locator.count():
-				author_text = author_locator.text_content()
-				author = author_text.strip() if author_text else None
 
 		browser.close()
 
