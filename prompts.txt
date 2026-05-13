@@ -1,0 +1,16 @@
+1)Add to scraper.py to locate the following elements cartoon_of_the_day section of output.json on a webpage https://ekantipur.com/cartoon
+and give Title, Image_URL and author as output 
+    Cartoon section 
+    div.cartoon-wrapper
+
+    Title – inside the cartoon section, the first element matching:
+    div.cartoon-description p
+
+    Image URL – inside the cartoon section, from an image tag with:
+    div.cartoon-image img
+    → get the src attribute
+
+    Author or date – inside the cartoon section, text from:
+    
+    div.date p
+
