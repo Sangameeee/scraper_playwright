@@ -10,7 +10,8 @@ and give Title, Image_URL and author as output
     div.cartoon-image img
     → get the src attribute
 
-    Author or date – inside the cartoon section, text from:
-    
+    Author: in title after dash (-) text is taken as author if none than write null
+
     div.date p
 
+2)the scraped title of cartoon_of_the_day has (-) after the - text is author name if empty than else dont write date in author section
